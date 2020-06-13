@@ -222,4 +222,6 @@ function Resource:ExecuteResources()
 
     _ENV.CurrentFrameworkResource = nil
     _ENV.CurrentFrameworkModule = nil
+
+    Module:LoadModules()
 end

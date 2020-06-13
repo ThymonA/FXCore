@@ -28,14 +28,14 @@ end
 -- Returns `true` if module exits
 -- @module string Module name
 -- @return boolean `true` if module exists
-function Module:Exists(module)
-    if (module == nil or tostring(module) == '') then
+function Module:Exists(_module)
+    if (_module == nil or tostring(_module) == '') then
         return false
     end
 
-    module = string.lower(tostring(module))
+    _module = string.lower(tostring(_module))
 
-    return Module:GetModules()[module] ~= nil
+    return Module:GetModules()[_module] ~= nil
 end
 
 --
@@ -50,8 +50,8 @@ function Module:IsResourceAModule(resourceName)
 
     resourceName = string.lower(tostring(resourceName))
 
-    for _, module in pairs(Module.Modules or {}) do
-        if (module.resource == resourceName) then
+    for _, _module in pairs(Module.Modules or {}) do
+        if (_module.resource == resourceName) then
             return true
         end
     end
@@ -105,12 +105,35 @@ function Module:Create(name, func)
         return self.loaded or false
     end
 
+    function _object:HasError()
+        return self.error or false
+    end
+
     function _object:CanStart()
         if (#self.params <= 0) then
             return true
         end
 
-        return false
+        for i, param in pairs(self.params or {}) do
+            local key = string.lower(tostring(param))
+            local _module = (Module.Modules or {})[key] or nil
+
+            if (_module ~= nil) then
+                if (not _object:IsLoaded() and _object:HasError()) then
+                    self.error = true
+
+                    Error:Log(("Dependency '%s' at index #%s failed to load, module can't be started"):format(_module.name, i))
+
+                    return false
+                elseif (not _object:IsLoaded()) then
+                    return false
+                end
+            else
+                return false
+            end
+        end
+
+        return true
     end
 
     function _object:Get()
@@ -118,6 +141,10 @@ function Module:Create(name, func)
     end
 
     function _object:Execute()
+        if (self:IsLoaded() or self:HasError()) then
+            return
+        end
+
         if (func ~= nil and self:CanStart()) then
             if (#self.params <= 0) then
                 self.value = self.func()
@@ -126,10 +153,10 @@ function Module:Create(name, func)
 
                 for _, param in pairs(self.params or {}) do
                     local key = string.lower(tostring(param))
-                    local module = (((Module.Modules or nil)[key] or nil)) or nil
+                    local _module = (((Module.Modules or nil)[key] or nil)) or nil
 
-                    if (module ~= nil) then
-                        table.insert(_params, module:Get())
+                    if (_module ~= nil) then
+                        table.insert(_params, _module:Get())
                     else
                         table.insert(_params, nil)
                     end
@@ -165,11 +192,38 @@ function Module:Load(name, func, override)
         return
     end
 
-    local module = Module:Create(name, func)
+    local key = string.lower(tostring(name))
+    local _module = Module:Create(name, func)
 
-    if (module:CanStart()) then
-        module:Execute()
+    Module.Modules[key] = _module
+
+    if (_module:CanStart()) then
+        _module:Execute()
     end
+end
+
+--
+-- Load all modules and start missing modules
+--
+function Module:LoadModules()
+    Citizen.CreateThread(function()
+        for _, _module in pairs(Module.Modules or {}) do
+            if (not _module:HasError() and not _module:IsLoaded()) then
+                allStarted = false
+
+                _ENV.CurrentFrameworkResource = _module.resource
+                _ENV.CurrentFrameworkModule = _module.name
+
+                if (_module:CanStart()) then
+                    _module:Execute()
+                end
+            end
+        end
+
+        Citizen.Wait(5000)
+
+        Module:LoadModules()
+    end)
 end
 
 -- FiveM manipulation
