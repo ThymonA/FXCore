@@ -10,7 +10,14 @@ contact 'me@tigodev.com'
 version '1.0.0'
 
 server_scripts {
-    'server/common.lua',
-    'server/module.lua',
+    'vendors/class.lua',
+    'vendors/stacktrace.lua',
+
+    'shared/common.lua',
+
+    'lib/error.lua',
+    'lib/resource.lua',
+    'lib/module.lua',
+
     'server/main.lua'
 }
