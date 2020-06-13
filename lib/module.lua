@@ -113,6 +113,35 @@ function Module:Create(name, func)
         return false
     end
 
+    function _object:Get()
+        return self.value or nil
+    end
+
+    function _object:Execute()
+        if (func ~= nil and self:CanStart()) then
+            if (#self.params <= 0) then
+                self.value = self.func()
+            else
+                local _params = {}
+
+                for _, param in pairs(self.params or {}) do
+                    local key = string.lower(tostring(param))
+                    local module = (((Module.Modules or nil)[key] or nil)) or nil
+
+                    if (module ~= nil) then
+                        table.insert(_params, module:Get())
+                    else
+                        table.insert(_params, nil)
+                    end
+                end
+
+                self.value = self.func(table.unpack(_params))
+            end
+        else
+            error(("Can't start module '%s'"):format(self.name or 'unknown'))
+        end
+    end
+
     return _object
 end
 
@@ -122,6 +151,8 @@ end
 -- @func function Function to load module
 --
 function Module:Load(name, func, override)
+    _ENV.CurrentFrameworkModule = name
+
     if (name == nil or tostring(name) == '' or name == '') then
         error('Module name is required', 3)
         return
@@ -135,6 +166,10 @@ function Module:Load(name, func, override)
     end
 
     local module = Module:Create(name, func)
+
+    if (module:CanStart()) then
+        module:Execute()
+    end
 end
 
 -- FiveM manipulation
