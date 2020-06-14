@@ -16,12 +16,14 @@ server_scripts {
     'vendors/stacktrace.lua',
     'vendors/mysql-async/mysql-async.js',
     'vendors/mysql-async/MySQL.lua',
+    'vendors/regex.lua',
 
     'shared/common.lua',
 
     'lib/error.lua',
     'lib/resource.lua',
     'lib/module.lua',
+    'lib/database.lua',
 
     'server/main.lua'
 }
