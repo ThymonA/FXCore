@@ -14,6 +14,8 @@ server_scripts {
 
     'vendors/class.lua',
     'vendors/stacktrace.lua',
+    'vendors/mysql-async/mysql-async.js',
+    'vendors/mysql-async/MySQL.lua',
 
     'shared/common.lua',
 

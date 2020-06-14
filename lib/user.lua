@@ -28,5 +28,4 @@ end
 -- @returns object User object
 --
 function User:Load(identifier)
-    
 end
