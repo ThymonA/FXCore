@@ -12,7 +12,7 @@ FXCore = class()
 
 _ENV.SERVER = IsDuplicityVersion()
 _ENV.CLIENT = not _ENV.SERVER
+_ENV.OS     = 'windows'
 _G.SERVER   = IsDuplicityVersion()
 _G.CLIENT   = not _G.SERVER
-_ENV.OS     = 'windows'
 _G.OS       = 'windows'

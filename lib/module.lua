@@ -75,7 +75,7 @@ function Module:Create(name, func)
         for i = 1, numberOfParameters, 1 do
             local paramName = debug.getlocal(func, i)
 
-            if (paramName == nil and paramName == '') then
+            if (isNullOrDefault(paramName)) then
                 error(('Dependency at index #%s is empty'):format(i), 4)
                 return
             end
@@ -131,7 +131,7 @@ function Module:Create(name, func)
             local key = string.lower(tostring(param))
             local _module = (Module.Modules or {})[key] or nil
 
-            if (_module ~= nil) then
+            if (not isNullOrDefault(_module)) then
                 if (not _module:IsLoaded() and _module:HasError()) then
                     self.error = true
 
@@ -180,7 +180,7 @@ function Module:Create(name, func)
                     local key = string.lower(tostring(param))
                     local _module = ((Module.Modules or nil)[key] or nil) or nil
 
-                    if (_module ~= nil) then
+                    if (not isNullOrDefault(_module)) then
                         table.insert(_params, _module:Get())
                     else
                         table.insert(_params, nil)
@@ -208,7 +208,7 @@ function Module:Load(name, func, override)
     try(function()
         _ENV.CurrentFrameworkModule = name
 
-        if (name == nil or tostring(name) == '' or name == '') then
+        if (isNullOrDefault(name)) then
             error('Module name is required', 3)
             return
         end
@@ -269,6 +269,38 @@ function Module:LoadModules()
     end)
 end
 
+--
+-- Returns module if exsits
+-- @module string Module name
+--
+function Module:Get(moduleName)
+    if (isNullOrDefault(moduleName)) then
+        return nil
+    end
+
+    local key = string.lower(tostring(moduleName))
+
+    if (Module:Exists(key)) then
+        local _module = Module.Modules[key]
+
+        if (_module:IsLoaded()) then
+            return _module:Get()
+        end
+
+        if (Module:HasError()) then
+            return nil
+        end
+
+        Citizen.Wait(500)
+
+        return Module:Get(moduleName)
+    end
+
+    return nil
+end
+
 -- FiveM manipulation
 _ENV.module = function(name, func, override) Module:Load(name, func, override) end
 _G.module = function(name, func, override) Module:Load(name, func, override) end
+_ENV.m = function(moduleName) return Module:Get(moduleName) end
+_G.m = function(moduleName) return Module:Get(moduleName) end

@@ -22,6 +22,61 @@ local function try(func, catch_func)
     end
 end
 
+--
+-- Returns `true` if given object is nil or default
+-- @value any Value that needs to be checked
+-- @return boolean `true` if object is empty
+--
+local function isNullOrDefault(value)
+    if (value == nil) then
+        return true
+    end
+
+    local _type = type(value)
+
+    if (_type == 'string' and (value == '' or string.trim(value) == '')) then
+        return true
+    end
+
+    if (_type == 'number' and (value == 0 or tonumber(value) == 0)) then
+        return true
+    end
+
+    if (_type == 'table') then
+        if (#value > 0) then
+            return false
+        end
+
+        for _key, _value in pairs(value or {}) do
+            return false
+        end
+
+        return true
+    end
+
+    if (_type == 'boolean' and (value == 0 or not value or value == 'false' or tonumber(value) == 0)) then
+        return true
+    end
+
+    return false
+end
+
+-- Trim string
+-- @value string String to trim
+-- @result string String after trim
+--
+function string:trim(value)
+    if value then
+		return (string.gsub(value, "^%s*(.-)%s*$", "%1"))
+	else
+		return nil
+	end
+end
+
 -- FiveM manipulation
 _ENV.try = try
 _G.try = try
+_ENV.isNullOrDefault = isNullOrDefault
+_G.isNullOrDefault = isNullOrDefault
+_ENV.string.trim = function(value) return string:trim(value) end
+_G.string.trim = function(value) return string:trim(value) end

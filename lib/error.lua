@@ -18,17 +18,17 @@ Error = class()
 -- @module string Module name
 --
 function Error:Log(msg, resource, module)
-    if (resource ~= nil and resource ~= '' and tostring(resource) ~= '') then
+    if (not isNullOrDefault(resource)) then
         resource = (' [%s]'):format(tostring(resource))
-    elseif (CurrentFrameworkResource ~= nil and CurrentFrameworkResource ~= '' and tostring(CurrentFrameworkResource) ~= '') then
+    elseif (not isNullOrDefault(CurrentFrameworkResource)) then
         resource = (' [%s]'):format(tostring(CurrentFrameworkResource))
     else
         resource = ''
     end
 
-    if (module ~= nil and module ~= '' and tostring(module) ~= '') then
+    if (not isNullOrDefault(module)) then
         module = (' (%s)'):format(tostring(module))
-    elseif (CurrentFrameworkModule ~= nil and CurrentFrameworkModule ~= '' and tostring(CurrentFrameworkModule) ~= '') then
+    elseif (not isNullOrDefault(CurrentFrameworkModule)) then
         module = (' (%s)'):format(tostring(CurrentFrameworkModule))
     else
         module = ''
@@ -90,17 +90,17 @@ end
 function Error:Print(msg, resource, module)
     Error:Log(msg, resource, module)
 
-    if (resource ~= nil and resource ~= '' and tostring(resource) ~= '') then
+    if (not isNullOrDefault(resource)) then
         resource = ('[+] RESOURCE:                  %s\n'):format(tostring(resource))
-    elseif (CurrentFrameworkResource ~= nil and CurrentFrameworkResource ~= '' and tostring(CurrentFrameworkResource) ~= '') then
+    elseif (not isNullOrDefault(CurrentFrameworkResource)) then
         resource = ('[+] RESOURCE:                  %s\n'):format(tostring(CurrentFrameworkResource))
     else
         resource = ''
     end
 
-    if (module ~= nil and module ~= '' and tostring(module) ~= '') then
+    if (not isNullOrDefault(module)) then
         module = ('[+] MODULE:                       %s\n'):format(tostring(module))
-    elseif (CurrentFrameworkModule ~= nil and CurrentFrameworkModule ~= '' and tostring(CurrentFrameworkModule) ~= '') then
+    elseif (not isNullOrDefault(CurrentFrameworkModule)) then
         module = ('[+] MODULE:                       %s\n'):format(tostring(CurrentFrameworkModule))
     else
         module = ''

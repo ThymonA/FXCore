@@ -22,7 +22,7 @@ Resource:set {
 -- @module string Resource name
 -- @return boolean `true` if resource exists
 function Resource:Exists(resourceName)
-    if (resourceName == nil or tostring(resourceName) == '') then
+    if (isNullOrDefault(resourceName)) then
         return false
     end
 
@@ -36,7 +36,7 @@ end
 -- @module string Resource name
 -- @return boolean `true` if resource is loaded
 function Resource:IsLoaded(resourceName)
-    if (resourceName == nil or tostring(resourceName) == '') then
+    if (isNullOrDefault(resourceName)) then
         return true
     end
 
@@ -53,7 +53,7 @@ end
 -- @return array List of files in root directory
 --
 function Resource:GetResourceFiles(resourceName)
-    if (resourceName == nil or tostring(resourceName) == '') then
+    if (isNullOrDefault(resourceName)) then
         return false
     end
 
@@ -137,7 +137,7 @@ function Resource:GenerateManifestInfo(resourceName, data)
     end
 
     function _manifest:GetValue(key)
-        if (key == nil or tostring(key) == '') then
+        if (isNullOrDefault(key)) then
             return nil
         end
 
@@ -157,7 +157,7 @@ end
 -- @return object Resource manifest object
 --
 function Resource:GetManifestInfo(resourceName)
-    if (resourceName == nil or tostring(resourceName) == '') then
+    if (isNullOrDefault(resourceName)) then
         return Resource:GenerateManifestInfo(resourceName, {})
     end
 
