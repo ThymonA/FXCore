@@ -10,6 +10,8 @@ contact 'me@tigodev.com'
 version '1.0.0'
 
 server_scripts {
+    'lib/utils.lua',
+
     'vendors/class.lua',
     'vendors/stacktrace.lua',
 

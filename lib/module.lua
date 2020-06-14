@@ -76,12 +76,12 @@ function Module:Create(name, func)
             local paramName = debug.getlocal(func, i)
 
             if (paramName == nil and paramName == '') then
-                error(('Variable at index #%s is empty'):format(i))
+                error(('Dependency at index #%s is empty'):format(i), 4)
                 return
             end
 
             if (string.lower(name) == string.lower(paramName)) then
-                error(('Dependency refers to module itself at index #%s'):format(i))
+                error(('Dependency refers to module itself at index #%s'):format(i), 4)
                 return
             end
 
@@ -91,6 +91,9 @@ function Module:Create(name, func)
 
     local _object = class()
 
+    --
+    -- Default module variables
+    --
     _object:set {
         name = name,
         resource = CurrentFrameworkResource,
@@ -101,14 +104,24 @@ function Module:Create(name, func)
         value = nil
     }
 
+    --
+    -- Returns `true` if module is loaded and available
+    --
     function _object:IsLoaded()
         return self.loaded or false
     end
 
+    --
+    -- Returns `true` if module has a error
+    --
     function _object:HasError()
         return self.error or false
     end
 
+    --
+    -- Returns `true` if module can been started, `false` if module can't be started
+    -- Change `error` state when module can't start because of missing dependencies
+    --
     function _object:CanStart()
         if (#self.params <= 0) then
             return true
@@ -119,15 +132,21 @@ function Module:Create(name, func)
             local _module = (Module.Modules or {})[key] or nil
 
             if (_module ~= nil) then
-                if (not _object:IsLoaded() and _object:HasError()) then
+                if (not _module:IsLoaded() and _module:HasError()) then
                     self.error = true
 
-                    Error:Log(("Dependency '%s' at index #%s failed to load, module can't be started"):format(_module.name, i))
+                    Error:Print(("Dependency '%s' at index #%s failed to load, module can't be started"):format(_module.name, i), self.resource, self.name)
 
                     return false
-                elseif (not _object:IsLoaded()) then
+                elseif (not _module:IsLoaded()) then
                     return false
                 end
+            elseif (Resource.AllResourcesLoaded) then
+                self.error = true
+
+                Error:Print(("Dependency '%s' at index #%s failed to load, module doesn't exists"):format(key, i), self.resource, self.name)
+
+                return false
             else
                 return false
             end
@@ -136,10 +155,16 @@ function Module:Create(name, func)
         return true
     end
 
+    --
+    -- Returns module
+    --
     function _object:Get()
         return self.value or nil
     end
 
+    --
+    -- Execute module code
+    --
     function _object:Execute()
         if (self:IsLoaded() or self:HasError()) then
             return
@@ -153,7 +178,7 @@ function Module:Create(name, func)
 
                 for _, param in pairs(self.params or {}) do
                     local key = string.lower(tostring(param))
-                    local _module = (((Module.Modules or nil)[key] or nil)) or nil
+                    local _module = ((Module.Modules or nil)[key] or nil) or nil
 
                     if (_module ~= nil) then
                         table.insert(_params, _module:Get())
@@ -178,28 +203,39 @@ end
 -- @func function Function to load module
 --
 function Module:Load(name, func, override)
-    _ENV.CurrentFrameworkModule = name
-
-    if (name == nil or tostring(name) == '' or name == '') then
-        error('Module name is required', 3)
-        return
-    end
-
-    override = not (not override or false)
-
-    if (not override and Module:Exists(name)) then
-        error(("Module %s has already been registerd"):format(name), 3)
-        return
-    end
-
     local key = string.lower(tostring(name))
-    local _module = Module:Create(name, func)
 
-    Module.Modules[key] = _module
+    try(function()
+        _ENV.CurrentFrameworkModule = name
 
-    if (_module:CanStart()) then
-        _module:Execute()
-    end
+        if (name == nil or tostring(name) == '' or name == '') then
+            error('Module name is required', 3)
+            return
+        end
+
+        override = not (not override or false)
+
+        if (not override and Module:Exists(name)) then
+            error(("Module %s has already been registerd"):format(name), 3)
+            return
+        end
+
+        local _module = Module:Create(name, func)
+
+        Module.Modules[key] = _module
+
+        if (_module:CanStart()) then
+            _module:Execute()
+        end
+    end, function(e)
+        if (Module.Modules[key] ~= nil) then
+            Module.Modules[key].error = true
+
+            Error:Print(e, Module.Modules[key].resource, Module.Modules[key].name)
+        else
+            Error:Print(e, nil, key)
+        end
+    end)
 end
 
 --
@@ -207,18 +243,25 @@ end
 --
 function Module:LoadModules()
     Citizen.CreateThread(function()
-        for _, _module in pairs(Module.Modules or {}) do
+        for moduleName, _module in pairs(Module.Modules or {}) do
             if (not _module:HasError() and not _module:IsLoaded()) then
-                allStarted = false
-
                 _ENV.CurrentFrameworkResource = _module.resource
                 _ENV.CurrentFrameworkModule = _module.name
 
-                if (_module:CanStart()) then
-                    _module:Execute()
-                end
+                try(function()
+                    if (_module:CanStart()) then
+                        _module:Execute()
+                    end
+                end, function(e)
+                    Module.Modules[moduleName].error = true
+
+                    Error:Print(e, _module.resource, _module.name)
+                end)
             end
         end
+
+        _ENV.CurrentFrameworkResource = nil
+        _ENV.CurrentFrameworkModule = nil
 
         Citizen.Wait(5000)
 

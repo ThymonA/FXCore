@@ -13,7 +13,8 @@ Resource = class()
 
 -- Set default values
 Resource:set {
-    Resources = {}
+    Resources = {},
+    AllResourcesLoaded = false
 }
 
 --
@@ -222,6 +223,8 @@ function Resource:ExecuteResources()
 
     _ENV.CurrentFrameworkResource = nil
     _ENV.CurrentFrameworkModule = nil
+
+    Resource.AllResourcesLoaded = true
 
     Module:LoadModules()
 end
