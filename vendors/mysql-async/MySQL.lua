@@ -1,3 +1,12 @@
+----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
+-- ɢɪᴛʜᴜʙ: https://github.com/brouznouf/fivem-mysql-async
+-- ʟɪᴄᴇɴꜱᴇ: None
+-- ᴅᴇᴠᴇʟᴏᴘᴇʀ: jonstoler
+-- ᴘʀᴏᴊᴇᴄᴛ: class.lua
+-- ᴠᴇʀꜱɪᴏɴ: unknown
+-- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: Make lua Object-Oriented!
+----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
+
 MySQL = class()
 
 -- Set default vaule
