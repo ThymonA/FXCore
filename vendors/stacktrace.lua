@@ -426,3 +426,5 @@ _ENV._M = _M
 _G._M = _M
 
 debug.traceback = _M.stacktrace
+_ENV.debug.traceback = _M.stacktrace
+_G.debug.traceback = _M.stacktrace
