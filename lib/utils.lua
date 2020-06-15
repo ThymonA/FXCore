@@ -22,6 +22,18 @@ local function try(func, catch_func)
     end
 end
 
+-- Trim string
+-- @value string String to trim
+-- @result string String after trim
+--
+local function string_trim(value)
+    if value then
+		return (string.gsub(value, "^%s*(.-)%s*$", "%1"))
+	else
+		return nil
+	end
+end
+
 --
 -- Returns `true` if given object is nil or default
 -- @value any Value that needs to be checked
@@ -34,7 +46,7 @@ local function isNullOrDefault(value)
 
     local _type = type(value)
 
-    if (_type == 'string' and (value == '' or string.trim(value) == '')) then
+    if (_type == 'string' and (value == '' or string_trim(value) == '')) then
         return true
     end
 
@@ -61,22 +73,10 @@ local function isNullOrDefault(value)
     return false
 end
 
--- Trim string
--- @value string String to trim
--- @result string String after trim
---
-function string:trim(value)
-    if value then
-		return (string.gsub(value, "^%s*(.-)%s*$", "%1"))
-	else
-		return nil
-	end
-end
-
 -- FiveM manipulation
 _ENV.try = try
 _G.try = try
 _ENV.isNullOrDefault = isNullOrDefault
 _G.isNullOrDefault = isNullOrDefault
-_ENV.string.trim = function(value) return string:trim(value) end
-_G.string.trim = function(value) return string:trim(value) end
+_ENV.string.trim = string_trim
+_G.string.trim = string_trim

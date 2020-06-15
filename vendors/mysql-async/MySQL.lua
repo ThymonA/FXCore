@@ -21,7 +21,7 @@ MySQL:set {
 -- @return array Safe Parameters
 --
 function MySQL:SafeParameters(params)
-    if nil == params then
+    if isNullOrDefault(params) then
         return {[''] = ''}
     end
 

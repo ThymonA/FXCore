@@ -36,5 +36,7 @@ server_scripts {
     'lib/module.lua',
     'lib/database.lua',
 
+    'data/database.lua',
+
     'server/main.lua'
 }

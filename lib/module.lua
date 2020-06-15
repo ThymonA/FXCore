@@ -181,7 +181,9 @@ function Module:Create(name, func)
                     local _module = ((Module.Modules or nil)[key] or nil) or nil
 
                     if (not isNullOrDefault(_module)) then
-                        table.insert(_params, _module:Get())
+                        Citizen.CreateThread(function()
+                            table.insert(_params, _module:Get())
+                        end)
                     else
                         table.insert(_params, nil)
                     end
