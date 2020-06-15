@@ -1,3 +1,12 @@
+----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
+-- ɢɪᴛʜᴜʙ: https://gist.github.com/luiseduardohd/10668729
+-- ʟɪᴄᴇɴꜱᴇ: None
+-- ᴅᴇᴠᴇʟᴏᴘᴇʀ: luiseduardohd
+-- ᴘʀᴏᴊᴇᴄᴛ: luaregex.lua
+-- ᴠᴇʀꜱɪᴏɴ: 130911
+-- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: LuaRegex A True Regular Expression for Lua
+----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
+
 -- luaregex.lua  ver.130911
 --    A true, python-like regular expression for Lua
 --

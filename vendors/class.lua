@@ -1,10 +1,10 @@
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 -- ɢɪᴛʜᴜʙ: https://github.com/jonstoler/class.lua
--- ʟɪᴄᴇɴꜱᴇ: MIT License
--- ᴅᴇᴠᴇʟᴏᴘᴇʀ: brouznouf
--- ᴘʀᴏᴊᴇᴄᴛ: fivem-mysql-async
--- ᴠᴇʀꜱɪᴏɴ: 3.2.3
--- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: MySql Async Library for FiveM
+-- ʟɪᴄᴇɴꜱᴇ: None
+-- ᴅᴇᴠᴇʟᴏᴘᴇʀ: jonstoler
+-- ᴘʀᴏᴊᴇᴄᴛ: class.lua
+-- ᴠᴇʀꜱɪᴏɴ: unknown
+-- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: object-oriented library for lua
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
 Class = {}
