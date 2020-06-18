@@ -6,7 +6,7 @@ Database:InitializeTable('jobs', {
     name =  { primary = false,  unique = true,  required = true, type = 'VARCHAR',  length = 40,    default = nil,  foreign_key = nil, extra = nil },
     label = { primary = false,  unique = false, required = true, type = 'VARCHAR',  length = 40,    default = nil,  foreign_key = nil, extra = nil },
 }, {
-    { name = 'unemployed', label = 'Unemployed' }
+    { id = 1, name = 'unemployed', label = 'Unemployed' }
 })
 
 --
@@ -21,7 +21,7 @@ Database:InitializeTable('job_grades', {
     name =  { primary = false,  unique = false, required = true, type = 'VARCHAR',  length = 40,    default = nil,          foreign_key = nil, extra = nil },
     label = { primary = false,  unique = false, required = true, type = 'VARCHAR',  length = 40,    default = nil,          foreign_key = nil, extra = nil },
 }, {
-    { job = 'unemployed', grade = 0, name = 'unemployed', label = 'Unemployed' }
+    { id = 1, job = 1, grade = 0, name = 'unemployed', label = 'Unemployed' }
 })
 
 --

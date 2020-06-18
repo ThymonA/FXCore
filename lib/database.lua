@@ -70,6 +70,7 @@ end
 -- Create a query for adding new tables
 -- @tableName string Table name
 -- @columns array List of columns for tables
+-- @return string Database CREATE TABLE query
 --
 function Database:CreateNewTableQuery(tableName, columns)
     if (isNullOrDefault(tableName)) then error('[DB] Table name is required') return end
@@ -172,6 +173,24 @@ function Database:CreateNewTableQuery(tableName, columns)
     query = ('%s\n);'):format(query)
 
     return query
+end
+
+--
+-- Generate a class for table
+-- @tableName string Table name
+-- @columns array List of columns of table
+-- @return object Table object
+--
+function Database:CreateTableClass(tableName, columns)
+    if (isNullOrDefault(tableName)) then error('[DB] Table name is required') return end
+    if (isNullOrDefault(columns)) then error('[DB] Columns is required') return end
+    if (type(tableName) ~= 'string') then error('[DB] Table name must be a string') return end
+    if (type(columns) ~= 'table') then error('[DB] Columns must be a table') return end
+
+    for name, column in pairs(columns or {}) do
+        local _type = column.type or 'VARCHAR'
+        local luaType = DatabaseType:GetValue(_type)
+    end
 end
 
 -- Set default values

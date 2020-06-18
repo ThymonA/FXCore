@@ -35,6 +35,8 @@ server_scripts {
     'lib/resource.lua',
     'lib/module.lua',
     'lib/database.lua',
+    'lib/database/job.lua',
+    'lib/database/user.lua',
 
     'data/database.lua',
 

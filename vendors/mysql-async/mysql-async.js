@@ -5138,6 +5138,15 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
   }).catch(() => false);
 });
 
+global.exports('mysql_fetch_first', (query, parameters, callback) => {
+  const invokingResource = global.GetInvokingResource();
+  const sql = prepareQuery(query, parameters);
+  mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
+    safeInvoke(callback, (result && result[0]) ? result[0] : null);
+    return true;
+  }).catch(() => false);
+});
+
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
   const invokingResource = global.GetInvokingResource();
   const sql = prepareQuery(query, parameters);
