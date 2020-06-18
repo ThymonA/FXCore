@@ -11,7 +11,6 @@ MySQL = class()
 
 -- Set default vaule
 MySQL:set {
-    ResourceName = GetCurrentResourceName(),
     IsReady = false
 }
 
@@ -45,12 +44,12 @@ function MySQL:Execute(query, params, callback)
     assert(type(query) == "string", ("The SQL Query must be a string, type is now %s"):format(type(query)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_execute(query, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_execute(query, MySQL:SafeParameters(params), callback)
     else
         local res = 0;
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_execute(query, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_execute(query, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -71,12 +70,12 @@ function MySQL:FetchAll(query, params, callback)
     assert(type(query) == "string", ("The SQL Query must be a string, type is now %s"):format(type(query)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_fetch_all(query, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_fetch_all(query, MySQL:SafeParameters(params), callback)
     else
         local res = {};
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_fetch_all(query, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_fetch_all(query, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -97,12 +96,12 @@ function MySQL:FetchScalar(query, params, callback)
     assert(type(query) == "string", ("The SQL Query must be a string, type is now %s"):format(type(query)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_fetch_scalar(query, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_fetch_scalar(query, MySQL:SafeParameters(params), callback)
     else
         local res = '';
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_fetch_scalar(query, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_fetch_scalar(query, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -123,12 +122,12 @@ function MySQL:FetchFirst(query, params, callback)
     assert(type(query) == "string", ("The SQL Query must be a string, type is now %s"):format(type(query)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_fetch_first(query, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_fetch_first(query, MySQL:SafeParameters(params), callback)
     else
         local res = '';
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_fetch_first(query, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_fetch_first(query, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -149,12 +148,12 @@ function MySQL:Insert(query, params, callback)
     assert(type(query) == "string", ("The SQL Query must be a string, type is now %s"):format(type(query)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_insert(query, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_insert(query, MySQL:SafeParameters(params), callback)
     else
         local res = 0;
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_insert(query, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_insert(query, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -175,12 +174,12 @@ function MySQL:Transaction(queries, params, callback)
     assert(type(queries) == "table", ("The SQL Queries must be a table, type is now %s"):format(type(queries)))
 
     if (callback) then
-        exports[MySQL.ResourceName]:mysql_transaction(queries, MySQL:SafeParameters(params), callback)
+        exports['mysql-async']:mysql_transaction(queries, MySQL:SafeParameters(params), callback)
     else
         local res = 0;
         local finishedQuery = false
 
-        exports[MySQL.ResourceName]:mysql_transaction(queries, MySQL:SafeParameters(params), function(result)
+        exports['mysql-async']:mysql_transaction(queries, MySQL:SafeParameters(params), function(result)
             res = result
             finishedQuery = true
         end)
@@ -197,11 +196,11 @@ end
 --
 function MySQL:Ready(callback)
     Citizen.CreateThread(function ()
-        while GetResourceState(MySQL.ResourceName) ~= 'started' do
+        while GetResourceState('mysql-async') ~= 'started' do
             Citizen.Wait(0)
         end
 
-        while not exports[MySQL.ResourceName]:is_ready() do
+        while not exports['mysql-async']:is_ready() do
             Citizen.Wait(0)
         end
 

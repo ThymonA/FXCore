@@ -25,12 +25,11 @@ server_scripts {
 
     'vendors/class.lua',
     'vendors/stacktrace.lua',
-    'vendors/mysql-async/mysql-async.js',
-    'vendors/mysql-async/MySQL.lua',
     'vendors/regex.lua',
 
     'shared/common.lua',
 
+    'lib/mysql.lua',
     'lib/error.lua',
     'lib/resource.lua',
     'lib/module.lua',
