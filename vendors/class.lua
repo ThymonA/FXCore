@@ -1,131 +1,244 @@
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
--- ɢɪᴛʜᴜʙ: https://github.com/jonstoler/class.lua
--- ʟɪᴄᴇɴꜱᴇ: None
--- ᴅᴇᴠᴇʟᴏᴘᴇʀ: jonstoler
--- ᴘʀᴏᴊᴇᴄᴛ: class.lua
--- ᴠᴇʀꜱɪᴏɴ: unknown
--- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: object-oriented library for lua
+-- ɢɪᴛʜᴜʙ: https://github.com/Yonaba/30log
+-- ʟɪᴄᴇɴꜱᴇ: MIT License
+-- ᴅᴇᴠᴇʟᴏᴘᴇʀ: Yonaba
+-- ᴘʀᴏᴊᴇᴄᴛ: 30log
+-- ᴠᴇʀꜱɪᴏɴ: 1.3.0
+-- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: library for object orientation in Lua
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Class = {}
+local assert       = assert
+local pairs        = pairs
+local type         = type
+local tostring     = tostring
+local setmetatable = setmetatable
 
--- default (empty) constructor
-function Class:init(...) end
+local _class
+local baseMt     = {}
+local _instances = setmetatable({},{__mode = 'k'})
+local _classes   = setmetatable({},{__mode = 'k'})
 
--- create a subclass
-function Class:extend(name, obj)
-	obj = obj or {}
+local function assert_call_from_class(class, method)
+	assert(_classes[class], ('Wrong method call. Expected class:%s.'):format(method))
+end
 
-	local function copyTable(table, destination)
-		table = table or {}
-		local result = destination or {}
+local function assert_call_from_instance(instance, method)
+	assert(_instances[instance], ('Wrong method call. Expected instance:%s.'):format(method))
+end
 
-		for k, v in pairs(table) do
-			if not result[k] then
-				if type(v) == "table" and k ~= "__index" and k ~= "__newindex" then
-					result[k] = copyTable(v)
-				else
-					result[k] = v
-				end
+local function bind(f, v) 
+	return function(...) return f(v, ...) end 
+end
+
+local default_filter = function() return true end
+
+local function deep_copy(t, dest, aType)
+	t = t or {}
+	local r = dest or {}
+	for k,v in pairs(t) do
+		if aType ~= nil and type(v) == aType then
+			r[k] = (type(v) == 'table')
+							and ((_classes[v] or _instances[v]) and v or deep_copy(v))
+							or v
+		elseif aType == nil then
+			r[k] = (type(v) == 'table') 
+			        and k~= '__index' and ((_classes[v] or _instances[v]) and v or deep_copy(v)) 
+							or v
+		end
+	end
+	return r
+end
+
+local function instantiate(call_init, self, ...)
+	assert_call_from_class(self, 'new(...) or class(...)')
+	local instance = {class = self}
+	_instances[instance] = tostring(instance)
+	deep_copy(self, instance, 'table')
+	instance.__index = nil
+	instance.mixins = nil
+	instance.__subclasses = nil
+	instance.__instances = nil
+	setmetatable(instance,self)
+	if call_init and self.init then
+		if type(self.init) == 'table' then
+			deep_copy(self.init, instance)
+		else
+			self.init(instance, ...)
+		end
+	end
+	return instance
+end
+
+local function extend(self, name, extra_params)
+	assert_call_from_class(self, 'extend(...)')
+	local heir = {}
+	_classes[heir] = tostring(heir)
+	self.__subclasses[heir] = true
+	deep_copy(extra_params, deep_copy(self, heir))
+	heir.name    = extra_params and extra_params.name or name
+	heir.__class = extra_params and extra_params.name or name
+	heir.__index = heir
+	heir.super   = self
+	heir.mixins = {}
+	return setmetatable(heir,self)
+end
+
+baseMt = {
+	__call = function (self,...) return self:new(...) end,
+
+	__tostring = function(self,...)
+		if _instances[self] then
+			return ("instance of '%s' (%s)"):format(rawget(self.class,'name') 
+								or '?', _instances[self])
+		end
+		return _classes[self] 
+							and ("class '%s' (%s)"):format(rawget(self,'name')
+							or '?',
+					_classes[self]) or self
+	end
+}
+
+_classes[baseMt] = tostring(baseMt)
+setmetatable(baseMt, {__tostring = baseMt.__tostring})
+
+local class = {
+	isClass   = function(t) return not not _classes[t] end,
+	isInstance = function(t) return not not _instances[t] end,
+}
+
+_class = function(name, attr)
+	local c = deep_copy(attr)
+	_classes[c] = tostring(c)
+	c.name = name or c.name
+	c.__class = name or c.name
+	c.__tostring = baseMt.__tostring
+	c.__call = baseMt.__call
+	c.new = bind(instantiate, true)
+	c.create = bind(instantiate, false)
+	c.extend = extend
+	c.__index = c
+
+	c.mixins = setmetatable({},{__mode = 'k'})
+	c.__instances = setmetatable({},{__mode = 'k'})
+	c.__subclasses = setmetatable({},{__mode = 'k'})
+
+	c.subclasses = function(self, filter, ...)
+		assert_call_from_class(self, 'subclasses(class)')
+		filter = filter or default_filter
+		local subclasses = {}
+		for class in pairs(_classes) do
+			if class ~= baseMt and class:subclassOf(self) and filter(class,...) then 
+				subclasses[#subclasses + 1] = class 
 			end
 		end
-
-		return result
+		return subclasses
 	end
 
-	copyTable(self, obj)
-
-	obj.__class = string.trim(name)
-	obj._ = obj._ or {}
-
-	local mt = {}
-
-	-- create new objects directly, like o = Object()
-	mt.__call = function(self, ...)
-		return self:new(...)
+	c.instances = function(self, filter, ...)
+		assert_call_from_class(self, 'instances(class)')
+		filter = filter or default_filter		
+		local instances = {}
+		for instance in pairs(_instances) do
+			if instance:instanceOf(self) and filter(instance, ...) then 
+				instances[#instances + 1] = instance
+			end
+		end
+		return instances
 	end
 
-	-- allow for getters and setters
-	mt.__index = function(table, key)
-		local val = rawget(table._, key)
-		if val and type(val) == "table" and (val.get ~= nil or val.value ~= nil) then
-			if val.get then
-				if type(val.get) == "function" then
-					return val.get(table, val.value)
-				else
-					return val.get
+	c.subclassOf = function(self, superclass)
+		assert_call_from_class(self, 'subclassOf(superclass)')
+		assert(class.isClass(superclass), 'Wrong argument given to method "subclassOf()". Expected a class.')
+		local super = self.super
+		while super do
+			if super == superclass then return true end
+			super = super.super
+		end
+		return false
+	end
+
+	c.classOf = function(self, subclass)
+		assert_call_from_class(self, 'classOf(subclass)')
+		assert(class.isClass(subclass), 'Wrong argument given to method "classOf()". Expected a class.')		
+		return subclass:subclassOf(self)
+	end
+
+	c.instanceOf = function(self, fromclass)
+		assert_call_from_instance(self, 'instanceOf(class)')
+		assert(class.isClass(fromclass), 'Wrong argument given to method "instanceOf()". Expected a class.')
+		return ((self.class == fromclass) or (self.class:subclassOf(fromclass)))
+	end
+
+	c.cast = function(self, toclass)
+		assert_call_from_instance(self, 'instanceOf(class)')
+		assert(class.isClass(toclass), 'Wrong argument given to method "cast()". Expected a class.')
+		setmetatable(self, toclass)
+		self.class = toclass
+		return self
+	end
+
+	c.with = function(self,...)
+		assert_call_from_class(self, 'with(mixin)')
+		for _, mixin in ipairs({...}) do
+			assert(self.mixins[mixin] ~= true, ('Attempted to include a mixin which was already included in %s'):format(tostring(self)))
+			self.mixins[mixin] = true
+			deep_copy(mixin, self, 'function')
+		end
+		return self
+	end
+
+	c.includes = function(self, mixin)
+		assert_call_from_class(self,'includes(mixin)')
+		return not not (self.mixins[mixin] or (self.super and self.super:includes(mixin)))
+	end
+
+	c.without = function(self, ...)
+		assert_call_from_class(self, 'without(mixin)')
+		for _, mixin in ipairs({...}) do
+			assert(self.mixins[mixin] == true, ('Attempted to remove a mixin which is not included in %s'):format(tostring(self)))		
+			local classes = self:subclasses()
+			classes[#classes + 1] = self
+			for _, class in ipairs(classes) do
+				for method_name, method in pairs(mixin) do
+					if type(method) == 'function' then
+						class[method_name] = nil
+					end
 				end
-			elseif val.value then
-				return val.value
+			end
+			self.mixins[mixin] = nil
+		end
+		return self
+	end
+
+	c.set = function(self, prop, value)
+		if not value and type(prop) == 'table' then
+			for k, v in pairs(prop) do
+				rawset(self, k, v)
 			end
 		else
-			return val
+			rawset(self, prop, value)
 		end
 	end
 
-	mt.__newindex = function(table, key, value)
-		local val = rawget(table._, key)
-		if val and type(val) == "table" and ((val.set ~= nil and val._ == nil) or val.value ~= nil) then
-			local v = value
-			if val.set then
-				if type(val.set) == "function" then
-					v = val.set(table, value, val.value)
-				else
-					v = val.set
-				end
-			end
-			val.value = v
-			if val and val.afterSet then val.afterSet(table, v) end
-		else
-			table._[key] = value
-		end
+	return setmetatable(c, baseMt)
+end
+
+local function _type(value)
+	local rawType = type(value)
+
+	if (rawType ~= 'table') then
+		return rawType
 	end
 
-	setmetatable(obj, mt)
-
-	return obj
-end
-
--- set properties outside the constructor or other functions
-function Class:set(prop, value)
-	if not value and type(prop) == "table" then
-		for k, v in pairs(prop) do
-			rawset(self._, k, v)
-		end
-	else
-		rawset(self._, prop, value)
-	end
-end
-
--- create an instance of an object with constructor parameters
-function Class:new(name, ...)
-	local obj = self:extend(name, {})
-	if obj.init then obj:init(...) end
-	return obj
-end
-
-
-function class(...)
-	return Class:extend(...)
-end
-
---
--- Returns class type or default type
--- @obj any Any variable
--- @return string name of Type
---
-function typeof(obj)
-	local _type = type(obj)
-
-	if (_type == 'table' and type(obj.__class) == 'string') then
-		return obj.__class
+	if (value.__class) then
+		return value.__class
 	end
 
-	return _type
+	return rawType
 end
 
 -- FiveM manipulation
-_ENV.class = class
-_ENV.typeof = typeof
-_G.class = class
-_G.typeof = typeof
+_ENV.class = setmetatable(class,{__call = function(_,...) return _class(...) end })
+_G.class = setmetatable(class,{__call = function(_,...) return _class(...) end })
+_ENV.type = _type
+_G.type = _type
