@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-DatabaseType = class()
+DatabaseType = class('DatabaseType')
 
 -- Set default enum values
 DatabaseType:set {

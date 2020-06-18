@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Resource = class()
+Resource = class('Resource')
 
 -- Set default values
 Resource:set {
@@ -102,7 +102,7 @@ function Resource:GetResources()
         local isFrameworkResource, resourcePath = Resource:IsFrameworkResource(resourceName)
 
         if (isFrameworkResource) then
-            local _object = class()
+            local _object = class('resource')
 
             _object:set {
                 name = resourceName,
@@ -123,7 +123,7 @@ end
 -- @return object Resource manifest object
 --
 function Resource:GenerateManifestInfo(resourceName, data)
-    local _manifest = class()
+    local _manifest = class('manifest')
 
     _manifest:set {
         name = resourceName,
@@ -207,7 +207,7 @@ function Resource:ExecuteResources()
             end)
 
             if (not Resource:Exists(resource.name)) then
-                local _object = resource:extend()
+                local _object = resource:extend('resource')
 
                 _object:set {
                     manifest = manifest,

@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Database = class()
+Database = class('Database')
 
 --
 -- Get all table from database

@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Error = class()
+Error = class('Error')
 
 --
 -- Log a error in file `fxcore_error.log`

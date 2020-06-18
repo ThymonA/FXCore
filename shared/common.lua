@@ -8,7 +8,7 @@
 -- ᴠᴇʀꜱɪᴏɴ: 1.0.0
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
-FXCore = class()
+FXCore = class('FXCore')
 
 _ENV.SERVER = IsDuplicityVersion()
 _ENV.CLIENT = not _ENV.SERVER

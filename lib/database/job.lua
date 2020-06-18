@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Job = class()
+Job = class('Job')
 
 -- Set default values
 Job:set {
@@ -46,7 +46,7 @@ function Job:Load(search)
         return nil
     end
 
-    local job = class()
+    local job = class('job')
 
     job:set {
         grades = {}
@@ -61,7 +61,7 @@ function Job:Load(search)
 
         local grade = tostring(jobResult.grade_grade)
 
-        job.grades[grade] = class()
+        job.grades[grade] = class('grade')
         job.grades[grade]:set {
             id = jobResult.grade_id,
             grade = jobResult.grade_grade,

@@ -13,11 +13,11 @@ Class = {}
 function Class:init(...) end
 
 -- create a subclass
-function Class:extend(obj)
-	local obj = obj or {}
+function Class:extend(name, obj)
+	obj = obj or {}
 
 	local function copyTable(table, destination)
-		local table = table or {}
+		table = table or {}
 		local result = destination or {}
 
 		for k, v in pairs(table) do
@@ -35,6 +35,7 @@ function Class:extend(obj)
 
 	copyTable(self, obj)
 
+	obj.__class = string.trim(name)
 	obj._ = obj._ or {}
 
 	local mt = {}
@@ -97,18 +98,34 @@ function Class:set(prop, value)
 end
 
 -- create an instance of an object with constructor parameters
-function Class:new(...)
-	local obj = self:extend({})
+function Class:new(name, ...)
+	local obj = self:extend(name, {})
 	if obj.init then obj:init(...) end
 	return obj
 end
 
 
-function class(attr)
-	attr = attr or {}
-	return Class:extend(attr)
+function class(...)
+	return Class:extend(...)
+end
+
+--
+-- Returns class type or default type
+-- @obj any Any variable
+-- @return string name of Type
+--
+function typeof(obj)
+	local _type = type(obj)
+
+	if (_type == 'table' and type(obj.__class) == 'string') then
+		return obj.__class
+	end
+
+	return _type
 end
 
 -- FiveM manipulation
 _ENV.class = class
+_ENV.typeof = typeof
 _G.class = class
+_G.typeof = typeof

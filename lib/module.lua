@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-Module = class()
+Module = class('Module')
 
 -- Set default values
 Module:set {
@@ -89,7 +89,7 @@ function Module:Create(name, func)
         end
     end
 
-    local _object = class()
+    local _object = class('module')
 
     --
     -- Default module variables

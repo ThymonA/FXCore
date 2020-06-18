@@ -9,7 +9,7 @@
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: FiveM Framework
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 
-User = class()
+User = class('User')
 
 -- Set default values
 User:set {
@@ -46,7 +46,7 @@ function User:Load(search)
         return nil
     end
 
-    local user = class()
+    local user = class('user')
 
     user:set {
         id = userResult.id,
