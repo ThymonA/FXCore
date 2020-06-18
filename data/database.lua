@@ -32,10 +32,10 @@ Database:InitializeTable('users', {
     ['identifier'] =    { primary = false,  unique = true,  required = true,    type = 'VARCHAR',   length = 40,    default = nil,                                      foreign_key = nil, extra = nil },
     ['name'] =          { primary = false,  unique = false, required = false,   type = 'LONGTEXT',  length = nil,   default = 'NONE',                                   foreign_key = nil, extra = nil },
     ['group'] =         { primary = false,  unique = false, required = true,    type = 'VARCHAR',   length = 40,    default = 'USER',                                   foreign_key = nil, extra = nil },
-    ['job'] =           { primary = false,  unique = false, required = true,    type = 'INT',       length = nil,   default = 'unemployed',                             foreign_key = {
+    ['grade'] =         { primary = false,  unique = false, required = true,    type = 'INT',       length = nil,   default = 'unemployed',                             foreign_key = {
         table = 'job_grades', column = 'id'
     }, extra = nil },
-    ['job2'] =          { primary = false,  unique = false, required = true,    type = 'INT',       length = nil,   default = 'unemployed',                             foreign_key = {
+    ['grade2'] =        { primary = false,  unique = false, required = true,    type = 'INT',       length = nil,   default = 'unemployed',                             foreign_key = {
         table = 'job_grades', column = 'id'
     }, extra = nil },
     ['position'] =      { primary = false,  unique = false, required = true,    type = 'LONGTEXT',  length = nil,   default = '{"x":0.0,"y":0.0,"z":0.0,"h":0.0}',      foreign_key = nil, extra = nil },

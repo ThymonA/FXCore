@@ -33,17 +33,17 @@ function User:Load(search)
     local userResult = nil
 
     if (_type == 'string') then
-        userResult = MySQL:FetchFirst('SELECT * FROM `users` WHERE `identifier` = @identifier', {
+        userResult = MySQL:FetchFirst('SELECT * FROM `users` WHERE `identifier` = @identifier LIMIT 1', {
             ['@identifier'] = string.trim(search)
         })
     elseif (_type == 'number') then
-        userResult = MySQL:FetchFirst('SELECT * FROM `users` WHERE `id` = @id', {
+        userResult = MySQL:FetchFirst('SELECT * FROM `users` WHERE `id` = @id LIMIT 1', {
             ['@id'] = search
         })
     end
 
     if (userResult == nil) then
-        return nil
+        return User:Default()
     end
 
     local user = class('user')
@@ -53,11 +53,46 @@ function User:Load(search)
         identifier = userResult.identifier,
         name = userResult.name,
         group = userResult.group,
-        position = userResult.position,
+        position = json.decode(userResult.position),
         isDead = userResult.isDead,
-        job = Job:Load(userResult.job),
-        job2 = Job:Load(userResult.job2)
+        grade = Job:LoadGrade(userResult.job),
+        grade2 = Job:LoadGrade(userResult.job2)
     }
+
+    function user:update()
+        return MySQL:Execute('UPDATE `users` SET `name` = @name, `grade` = @grade, `grade2` = @grade2, `group` = @group, `position` = @position, `isDead` = @isDead WHERE `id` = @id', {
+            ['@name'] = self.name,
+            ['@grade'] = self.grade.id,
+            ['@grade2'] = self.grade.id,
+            ['@group'] = self.group,
+            ['@position'] = json.encode(self.position),
+            ['@isDead'] = self.isDead,
+            ['@id'] = self.id
+        })
+    end
+
+    return user
+end
+
+--
+-- Default User Object
+-- @return object User object
+--
+function User:Default()
+    local user = class('user')
+
+    user:set {
+        id = 0,
+        identifier = 'default',
+        name = 'Default',
+        group = 'user',
+        position = { x = 0.0, y = 0.0, z = 0.0, h = 0.0 },
+        isDead = false,
+        grade = Job:DefaultGrade(),
+        grade2 = Job:DefaultGrade()
+    }
+
+    function user:update() return end
 
     return user
 end

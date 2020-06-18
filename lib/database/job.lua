@@ -43,7 +43,7 @@ function Job:Load(search)
     end
 
     if (jobResults == nil or #jobResults <= 0) then
-        return nil
+        return Job:Default()
     end
 
     local job = class('job')
@@ -66,9 +66,81 @@ function Job:Load(search)
             id = jobResult.grade_id,
             grade = jobResult.grade_grade,
             name = jobResult.grade_name,
-            label = jobResult.grade_label
+            label = jobResult.grade_label,
+            job = job
         }
     end
 
     return job
+end
+
+--
+-- Load job grade by name or id
+-- @search int|string Search by id or name
+-- @returns object Job grade object
+--
+function Job:LoadGrade(search)
+    local _type = type(search)
+    local jobResult = {}
+
+    if (_type == 'string') then
+        jobResult = MySQL:FetchFirst('SELECT `j`.`id` AS `job_id`, `j`.`label` AS `job_label`, `j`.`name` AS `job_name`, `jg`.`id` AS `grade_id`, `jg`.`grade` AS `grade_grade`, `jg`.`name` AS `grade_name`, `jg`.`label` AS `grade_label` FROM `job_grades` AS `jg` LEFT JOIN `jobs` AS `j` ON `jg`.`job` = `j`.`id` WHERE `jg`.`name` = @name ORDER BY `jg`.`grade` LIMIT 1', {
+            ['@name'] = string.trim(search)
+        })
+    elseif (_type == 'number') then
+        jobResult = MySQL:FetchFirst('SELECT `j`.`id` AS `job_id`, `j`.`label` AS `job_label`, `j`.`name` AS `job_name`, `jg`.`id` AS `grade_id`, `jg`.`grade` AS `grade_grade`, `jg`.`name` AS `grade_name`, `jg`.`label` AS `grade_label` FROM `job_grades` AS `jg` LEFT JOIN `jobs` AS `j` ON `jg`.`job` = `j`.`id` WHERE `jg`.`id` = @id ORDER BY `jg`.`grade` LIMIT 1', {
+            ['@id'] = search
+        })
+    end
+
+    if (jobResult == nil) then
+        return Job:DefaultGrade()
+    end
+
+    local grade = class('grade')
+
+    grade:set {
+        id = jobResult.grade_id,
+        grade = jobResult.grade_grade,
+        name = jobResult.grade_name,
+        label = jobResult.grade_label,
+        job = Job:Load(jobResult.job_id)
+    }
+
+    return grade
+end
+
+--
+-- Default Job Object
+-- @return object Job object
+--
+function Job:Default()
+    local job = class('job')
+
+    job:set {
+        id = 0,
+        name = 'default',
+        label = 'Default',
+        grades = {}
+    }
+
+    return job
+end
+
+--
+-- Default Job Grade Object
+-- @return object Job grade object
+--
+function Job:DefaultGrade()
+    local grade = class('grade')
+
+    grade:set {
+        id = 0,
+        grade = 0,
+        name = 'default',
+        label = 'Default',
+        job = Job:Default()
+    }
+
+    return grade
 end
