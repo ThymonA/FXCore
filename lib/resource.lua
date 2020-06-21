@@ -59,13 +59,25 @@ function Resource:GetResourceFiles(resourceName)
 
     local results, resourcePath = {}, GetResourcePath(resourceName)
 
-    if ((string.lower(OS) == 'win' or string.lower(OS) == 'windows') and resourcePath ~= nil) then
+    if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and resourcePath ~= nil) then
         for _file in io.popen(('dir "%s" /b'):format(resourcePath)):lines() do
             table.insert(results, _file)
         end
-    elseif ((string.lower(OS) == 'lux' or string.lower(OS) == 'linux') and resourcePath ~= nil) then
-        for _file in io.popen(('ls %s'):format(resourcePath)):lines() do
-            table.insert(results, _file)
+    elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and resourcePath ~= nil) then
+        local callit = os.tmpname()
+        os.execute("ls -aF ".. resourcePath .. " | grep -v / >"..callit)
+        local f = io.open(callit,"r")
+        local rv = f:read("*all")
+        f:close()
+        os.remove(callit)
+
+        local from  = 1
+        local delim_from, delim_to = string.find( rv, "\n", from  )
+
+        while delim_from do
+            table.insert( results, string.sub( rv, from , delim_from-1 ) )
+            from  = delim_to + 1
+            delim_from, delim_to = string.find( rv, "\n", from  )
         end
     end
 

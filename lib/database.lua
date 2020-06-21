@@ -186,42 +186,39 @@ Database:set {
 -- Set ready statement when MySQL is ready
 MySQL:Ready(function()
     Database.IsReady = MySQL.IsReady
-end)
 
--- Add missing tables to database
-Citizen.CreateThread(function()
     while true do
-        if (#Database.Queue > 0 and Database.IsReady) then
-            for _, queue in pairs(Database.Queue) do
-                local createTableQuery = Database:CreateNewTableQuery(queue.name, queue.columns)
-                local done = false
-                local missingForeingKey = false
+        for _, queue in pairs(Database.Queue) do
+            local createTableQuery = Database:CreateNewTableQuery(queue.name, queue.columns)
+            local done = false
+            local missingForeingKey = false
 
-                for _, column in pairs(queue.columns or {}) do
-                    if (column.foreign_key ~= nil and Database.Tables[(column.foreign_key.table or '')] ~= nil) then
-                    elseif (column.foreign_key ~= nil) then
-                        missingForeingKey = true
-                    end
-                end
-
-                if (not missingForeingKey) then
-                    MySQL:Execute(createTableQuery, {}, function()
-                        done = true
-                    end)
-
-                    repeat Citizen.Wait(0) until done == true
-
-                    Database.Tables[queue.name] = {}
-
-                    print(('[DB] Table `%s` has been created and added to database `%s`'):format(queue.name, Database.Database))
-
-                    table.remove(Database.Queue, _)
+            for _, column in pairs(queue.columns or {}) do
+                if (column.foreign_key ~= nil and Database.Tables[(column.foreign_key.table or '')] ~= nil) then
+                elseif (column.foreign_key ~= nil) then
+                    missingForeingKey = true
                 end
             end
 
-            Citizen.Wait(0)
-        else
-            Citizen.Wait(100)
+            if (not missingForeingKey) then
+                MySQL:Execute(createTableQuery, {}, function()
+                    done = true
+                end)
+
+                repeat Citizen.Wait(0) until done == true
+
+                Database.Tables[queue.name] = {}
+
+                print(('[DB] Table `%s` has been created and added to database `%s`'):format(queue.name, Database.Database))
+
+                table.remove(Database.Queue, _)
+            end
         end
+
+        if (#Database.Queue <= 0) then
+            return
+        end
+
+        Citizen.Wait(0)
     end
 end)

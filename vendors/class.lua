@@ -14,9 +14,9 @@ local tostring     = tostring
 local setmetatable = setmetatable
 
 local _class
-local baseMt     = {}
-local _instances = setmetatable({},{__mode = 'k'})
-local _classes   = setmetatable({},{__mode = 'k'})
+local baseMt     		= {}
+local _instances 		= setmetatable({},{__mode = 'k'})
+local _classes   		= setmetatable({},{__mode = 'k'})
 
 local function assert_call_from_class(class, method)
 	assert(_classes[class], ('Wrong method call. Expected class:%s.'):format(method))

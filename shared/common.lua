@@ -10,9 +10,9 @@
 ----------------------- [ ꜰxᴄᴏʀᴇ ] -----------------------
 FXCore = class('FXCore')
 
-_ENV.SERVER = IsDuplicityVersion()
-_ENV.CLIENT = not _ENV.SERVER
-_ENV.OS     = 'windows'
-_G.SERVER   = IsDuplicityVersion()
-_G.CLIENT   = not _G.SERVER
-_G.OS       = 'windows'
+_ENV.SERVER             = IsDuplicityVersion()
+_ENV.CLIENT             = not _ENV.SERVER
+_ENV.OperatingSystem    = 'linux'
+_G.SERVER               = IsDuplicityVersion()
+_G.CLIENT               = not _G.SERVER
+_G.OperatingSystem      = 'linux'
